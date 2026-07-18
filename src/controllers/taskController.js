@@ -100,6 +100,12 @@ exports.updateTask = async (req, res) => {
                 runValidators:true,
             }
         );
+        if (!task) {
+            return res.status(404).json({
+            success: false,
+            message: "Task not found",
+            });
+}
         await createNotification({
             title: "Task Updated",
             message: `"${task.title}" has been updated.`,
@@ -109,12 +115,6 @@ exports.updateTask = async (req, res) => {
             referenceModel: "Task",
         });
 
-        if(!task){
-            return res.status(404).json({
-                success:false,
-                message:"Task not found",
-            });
-        }
 
         res.status(200).json({
             success:true,
@@ -137,6 +137,13 @@ exports.deleteTask = async (req, res) => {
             _id:req.params.id,
             user:new mongoose.Types.ObjectId(req.user.id),
         });
+        if(!task){
+            return res.status(404).json({
+                success:false,
+                message:"Task not found",
+            });
+        }
+        
         await createNotification({
             title: "Task Deleted",
             message: `"${task.title}" has been deleted.`,
@@ -144,12 +151,7 @@ exports.deleteTask = async (req, res) => {
             user: req.user.id,
         });
 
-        if(!task){
-            return res.status(404).json({
-                success:false,
-                message:"Task not found",
-            });
-        }
+        
 
         res.status(200).json({
             success:true,
