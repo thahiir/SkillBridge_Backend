@@ -1,0 +1,823 @@
+SkillBridge - Master Project Context (Backend)
+
+PROJECT NAME
+
+SkillBridge
+
+PROJECT TYPE
+
+Production-ready Full Stack SaaS Productivity Platform
+
+PROJECT DESCRIPTION
+
+SkillBridge is a modern productivity web application where users can manage daily tasks, track expenses, receive notifications, view analytics, upload profile images, and monitor productivity through a personalized dashboard.
+
+The backend is completely REST API based and every resource belongs only to the authenticated user.
+
+--------------------------------------------------
+
+BACKEND TECH STACK
+
+Node.js
+
+Express.js
+
+MongoDB Atlas
+
+Mongoose
+
+JWT Authentication
+
+bcrypt
+
+Multer
+
+Cloudinary
+
+Nodemailer
+
+Node Cron
+
+Express Middleware
+
+REST API
+
+MVC Architecture
+
+--------------------------------------------------
+
+FRONTEND STACK (TO BUILD)
+
+React 19
+
+Vite
+
+React Router DOM
+
+Axios
+
+Tailwind CSS
+
+React Hook Form
+
+SweetAlert2
+
+Recharts
+
+React Icons
+
+Context API
+
+Framer Motion
+
+--------------------------------------------------
+
+DATABASE
+
+MongoDB Atlas
+
+Database Name
+
+SkillBridgeDB
+
+--------------------------------------------------
+
+ARCHITECTURE
+
+MVC Architecture
+
+controllers/
+
+models/
+
+routes/
+
+middleware/
+
+services/
+
+config/
+
+cron/
+
+utils/
+
+--------------------------------------------------
+
+USER MODEL
+
+Fields
+
+Fullname
+
+PhoneNo
+
+Email
+
+Password (bcrypt hashed)
+
+profileImage
+
+profileImageId
+
+resetPasswordToken
+
+resetPasswordExpire
+
+timestamps
+
+Methods
+
+getResetPasswordToken()
+
+--------------------------------------------------
+
+AUTHENTICATION
+
+Register
+
+Login
+
+JWT Authentication
+
+Protected Routes
+
+Forgot Password
+
+Reset Password
+
+Update Password
+
+Current User
+
+Profile Upload
+
+--------------------------------------------------
+
+JWT
+
+Bearer Token Authentication
+
+Authorization Header
+
+Bearer TOKEN
+
+Middleware
+
+protect
+
+Attaches
+
+req.user.id
+
+--------------------------------------------------
+
+TASK MODEL
+
+title
+
+description
+
+status
+
+priority
+
+dueDate
+
+user
+
+timestamps
+
+Relationships
+
+One User
+
+↓
+
+Many Tasks
+
+--------------------------------------------------
+
+TASK FEATURES
+
+Create Task
+
+Get All Tasks
+
+Get Single Task
+
+Update Task
+
+Delete Task
+
+Search
+
+Filter
+
+Status Filter
+
+Priority Filter
+
+Sorting
+
+Pagination
+
+User-wise Data
+
+Automatic Notifications
+
+--------------------------------------------------
+
+TASK APIs
+
+POST
+
+/tasks
+
+GET
+
+/tasks
+
+Supports
+
+search
+
+status
+
+priority
+
+sort
+
+page
+
+limit
+
+GET
+
+/tasks/:id
+
+PUT
+
+/tasks/:id
+
+DELETE
+
+/tasks/:id
+
+--------------------------------------------------
+
+EXPENSE MODEL
+
+title
+
+amount
+
+category
+
+paymentMethod
+
+date
+
+notes
+
+user
+
+timestamps
+
+--------------------------------------------------
+
+EXPENSE FEATURES
+
+CRUD
+
+Search
+
+Category Filter
+
+Payment Method Filter
+
+Sorting
+
+Pagination
+
+Summary Analytics
+
+Monthly Analytics
+
+Category Analytics
+
+User-wise Expenses
+
+Automatic Notifications
+
+--------------------------------------------------
+
+EXPENSE APIs
+
+POST
+
+/expenses
+
+GET
+
+/expenses
+
+GET
+
+/expenses/:id
+
+PUT
+
+/expenses/:id
+
+DELETE
+
+/expenses/:id
+
+Analytics
+
+GET
+
+/expenses/summary
+
+Returns
+
+Total Expense
+
+Total Transactions
+
+Average Expense
+
+Highest Expense
+
+Lowest Expense
+
+GET
+
+/expenses/monthly
+
+Returns
+
+Monthly Expense Aggregation
+
+GET
+
+/expenses/category
+
+Returns
+
+Category Wise Expense
+
+Aggregation Framework Used
+
+MongoDB Aggregate
+
+--------------------------------------------------
+
+NOTIFICATION MODEL
+
+title
+
+message
+
+type
+
+isRead
+
+referenceId
+
+referenceModel
+
+user
+
+timestamps
+
+--------------------------------------------------
+
+NOTIFICATION TYPES
+
+TASK
+
+EXPENSE
+
+SYSTEM
+
+--------------------------------------------------
+
+NOTIFICATION FEATURES
+
+Create
+
+Read
+
+Delete
+
+Mark Read
+
+Mark All Read
+
+Unread Count
+
+Task Notifications
+
+Expense Notifications
+
+--------------------------------------------------
+
+NOTIFICATION APIs
+
+POST
+
+/notifications
+
+GET
+
+/notifications
+
+GET
+
+/notifications/:id
+
+PUT
+
+/notifications/read/:id
+
+PUT
+
+/notifications/read-all
+
+DELETE
+
+/notifications/:id
+
+--------------------------------------------------
+
+NOTIFICATION SERVICE
+
+services/notificationService.js
+
+Functions
+
+createNotification()
+
+getUserNotifications()
+
+getUnreadCount()
+
+markAllAsRead()
+
+Used Automatically
+
+Task Module
+
+Expense Module
+
+Cron Jobs
+
+--------------------------------------------------
+
+DASHBOARD
+
+Dashboard API
+
+GET
+
+/dashboard
+
+Returns
+
+Task Statistics
+
+Total
+
+Completed
+
+Pending
+
+Expense Statistics
+
+Total Expense
+
+Average Expense
+
+Highest Expense
+
+Lowest Expense
+
+Total Transactions
+
+Notification Statistics
+
+Total
+
+Unread
+
+Recent Tasks
+
+Recent Expenses
+
+Uses
+
+Promise.all()
+
+for parallel MongoDB queries.
+
+--------------------------------------------------
+
+PROFILE IMAGE
+
+Cloudinary
+
+Multer
+
+Multer Storage Cloudinary
+
+User uploads profile image
+
+Image stored in Cloudinary
+
+MongoDB stores
+
+profileImage
+
+profileImageId
+
+--------------------------------------------------
+
+EMAIL
+
+Nodemailer
+
+Forgot Password Email
+
+Reset Password Link
+
+Gmail SMTP
+
+--------------------------------------------------
+
+CRON JOBS
+
+Node Cron
+
+Job 1
+
+Daily Task Reminder
+
+Checks tasks due today
+
+Creates notification
+
+Job 2
+
+Monthly Expense Summary
+
+Calculates monthly expenses
+
+Creates summary notification
+
+--------------------------------------------------
+
+SEARCH
+
+Tasks
+
+Expenses
+
+Uses Regex
+
+Case Insensitive
+
+--------------------------------------------------
+
+FILTERING
+
+Tasks
+
+Status
+
+Priority
+
+Expenses
+
+Category
+
+Payment Method
+
+--------------------------------------------------
+
+SORTING
+
+Supports
+
+createdAt
+
+amount
+
+date
+
+title
+
+ascending
+
+descending
+
+--------------------------------------------------
+
+PAGINATION
+
+Tasks
+
+Expenses
+
+Uses
+
+page
+
+limit
+
+skip
+
+totalPages
+
+currentPage
+
+--------------------------------------------------
+
+ANALYTICS
+
+MongoDB Aggregation
+
+Expense Summary
+
+Monthly Expense
+
+Category Expense
+
+Dashboard Statistics
+
+--------------------------------------------------
+
+SECURITY
+
+bcrypt Password Hashing
+
+JWT Authentication
+
+Protected Routes
+
+User Isolation
+
+Every Task belongs to logged-in User
+
+Every Expense belongs to logged-in User
+
+Every Notification belongs to logged-in User
+
+--------------------------------------------------
+
+ERROR HANDLING
+
+HTTP Status Codes
+
+200
+
+201
+
+400
+
+401
+
+404
+
+500
+
+--------------------------------------------------
+
+PROJECT FOLDER STRUCTURE
+
+src
+
+controllers
+
+models
+
+routes
+
+middleware
+
+services
+
+config
+
+cron
+
+utils
+
+uploads (optional)
+
+server.js
+
+--------------------------------------------------
+
+IMPLEMENTED MODULES
+
+Authentication
+
+User Profile
+
+Password Reset
+
+Profile Upload
+
+Task Management
+
+Expense Tracker
+
+Notifications
+
+Dashboard
+
+Analytics
+
+Node Cron
+
+Cloudinary Upload
+
+--------------------------------------------------
+
+BACKEND STATUS
+
+Backend Development
+
+≈ 98% Complete
+
+Remaining Optional Enhancements
+
+Helmet
+
+Rate Limiting
+
+Centralized Error Middleware
+
+Swagger Documentation
+
+Deployment
+
+--------------------------------------------------
+
+FRONTEND REQUIREMENTS
+
+Build frontend using React and Vite only.
+
+Consume existing APIs.
+
+Do not modify backend APIs.
+
+Use Axios Instance.
+
+Use Context API.
+
+Store JWT in localStorage.
+
+Protected Routes.
+
+Responsive Design.
+
+Professional SaaS UI.
+
+Sidebar Layout.
+
+Navbar.
+
+Dashboard.
+
+Task Module.
+
+Expense Module.
+
+Notification Module.
+
+Profile Module.
+
+Analytics Charts.
+
+Dark Mode Ready.
+
+Use Recharts.
+
+Use SweetAlert2.
+
+Use Tailwind CSS.
+
+Generate reusable components.
+
+Explain every file before creating it.
+
+Generate complete code.
+
+Connect every page to backend APIs.
+
+Never skip implementation details.
+
+Ask for confirmation before moving to the next major module.
