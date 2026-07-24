@@ -2,6 +2,8 @@ const Task = require("../models/Task");
 
 const { createNotification, } = require("../services/notificationServices");
 
+const mongoose = require("mongoose")
+
 exports.createTask = async (req, res) => {
     try {
 
@@ -36,21 +38,60 @@ exports.createTask = async (req, res) => {
 exports.getTasks = async (req, res) => {
     try {
 
-        const tasks = await Task.find({
-            user:req.user.id,
-        });
+        const {
+            search,
+            status,
+            priority,
+            sort = "-createdAt",
+            page = 1,
+            limit = 10,
+        } = req.query;
+
+        const query = {
+            user: req.user.id,
+        };
+
+        if (search) {
+            query.title = {
+                $regex: search,
+                $options: "i",
+            };
+        }
+
+        if (status) {
+            query.status = status;
+        }
+
+        if (priority) {
+            query.priority = priority;
+        }
+
+        const currentPage = Number(page);
+        const pageLimit = Number(limit);
+
+        const totalTasks = await Task.countDocuments(query);
+
+        const tasks = await Task.find(query)
+            .sort(sort)
+            .skip((currentPage - 1) * pageLimit)
+            .limit(pageLimit);
 
         res.status(200).json({
-            success:true,
-            count:tasks.length,
+            success: true,
             tasks,
+            pagination: {
+                total: totalTasks,
+                page: currentPage,
+                limit: pageLimit,
+                pages: Math.ceil(totalTasks / pageLimit),
+            },
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success:false,
-            message:error.message,
+            success: false,
+            message: error.message,
         });
 
     }
@@ -163,6 +204,73 @@ exports.deleteTask = async (req, res) => {
         res.status(500).json({
             success:false,
             message:error.message,
+        });
+
+    }
+};
+
+exports.getTaskSummary = async (req, res) => {
+    try {
+
+        const summary = await Task.aggregate([
+            {
+                $match: {
+                    user: new mongoose.Types.ObjectId(req.user.id),
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: 1 },
+
+                    pending: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "Pending"] },
+                                1,
+                                0,
+                            ],
+                        },
+                    },
+
+                    inProgress: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "In Progress"] },
+                                1,
+                                0,
+                            ],
+                        },
+                    },
+
+                    completed: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$status", "Completed"] },
+                                1,
+                                0,
+                            ],
+                        },
+                    },
+                },
+            },
+        ]);
+
+        res.status(200).json({
+            success: true,
+            summary: summary[0] || {
+                total: 0,
+                pending: 0,
+                inProgress: 0,
+                completed: 0,
+            },
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message,
         });
 
     }
