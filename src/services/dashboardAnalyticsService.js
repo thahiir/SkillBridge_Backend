@@ -130,6 +130,9 @@ exports.getDashboardAnalytics = async (userId) => {
             {
                 $group: {
                     _id: {
+                        year:{
+                            $year:"$date",
+                        },
                         month: {
                             $month: "$date",
                         },
@@ -156,7 +159,7 @@ exports.getDashboardAnalytics = async (userId) => {
         })
             .sort("-createdAt")
             .limit(5)
-            .select("title amount category paymentMethod"),
+            .select("title amount category paymentMethod date"),
 
         // ===========================
         // NOTIFICATIONS
