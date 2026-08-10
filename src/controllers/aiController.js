@@ -1,47 +1,33 @@
-const User = require("../models/User");
 
 const { askAI } = require("../services/aiServices");
-const { getDashboardAnalytics } = require("../services/dashboardAnalyticsService");
 
 exports.chatWithAI = async (req, res) => {
     try {
 
         const { message } = req.body;
 
-        // Validate request
-        if (!message) {
+        // Validate message
+        if (!message || !message.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Message is required",
             });
         }
 
-        // Get logged-in user
-        const user = await User.findById(req.user.id)
-            .select("Fullname Email");
+        // User comes from protect middleware
+        const userId = req.user.id;
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
-        }
+        console.log("========== AI REQUEST ==========");
+        console.log("User ID:", userId);
+        console.log("Message:", message);
 
-        // Get dashboard analytics
-        const analytics = await getDashboardAnalytics(req.user.id);
-
-        // Debug (optional)
-        console.log("========== AI Analytics ==========");
-        console.log(JSON.stringify(analytics, null, 2));
-
-        // Ask Gemini AI
+        // Ask AI
         const reply = await askAI({
-            user,
-            analytics,
+            userId,
             message,
         });
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             reply,
         });
@@ -50,10 +36,9 @@ exports.chatWithAI = async (req, res) => {
 
         console.error("AI Controller Error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message || "AI request failed",
         });
-
     }
 };
