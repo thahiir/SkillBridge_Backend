@@ -13,9 +13,10 @@ exports.createExpense = async (req, res) => {
       title: "Expense Added",
       message: `₹${expense.amount} added under ${expense.category}.`,
       type: "EXPENSE",
-      user: new mongoose.Types.ObjectId(req.user.id),
+      userId: new mongoose.Types.ObjectId(req.user.id),
       referenceId: expense._id,
       referenceModel: "Expense",
+      sendEmail:true,
     });
 
     res.status(201).json({

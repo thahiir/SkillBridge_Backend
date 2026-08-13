@@ -10,6 +10,8 @@ const sendEmail = require("../utils/sendEmail")
 
 const {createNotification,} = require("../services/notificationServices")
 
+const NotificationPreference = require("../models/NotificationPreference");
+
 const uploadToCloudinary = (buffer) => {
     return new Promise((resolve, reject) => {
 
@@ -55,6 +57,19 @@ exports.register = async(req,res) =>{
         const user = await User.create({
             Fullname,PhoneNo,Email,Password:hashedPassword,
         });
+
+        await NotificationPreference.findOneAndUpdate({
+            user: user._id,
+        },
+        {
+            user: user._id,
+        },
+        {
+            upsert:true,
+            new: true,
+            setDefaultsOnInsert:true,
+        });
+
         await createNotification({
             title: "Welcome to SkillBridge",
             message: `Welcome ${user.Fullname}! Your account has been created successfully.`,

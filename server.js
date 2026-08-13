@@ -30,6 +30,8 @@ app.use("/api/dashboard",require("./src/routes/dashboardRoutes"));
 
 app.use("/api/ai",require("./src/routes/aiRoutes"));
 
+app.use("/api/budget",require("./src/routes/budgetRoutes"));
+
 
 app.listen(process.env.PORT, () =>{
     console.log(`server runnning @ http://localhost:${process.env.PORT}`);
