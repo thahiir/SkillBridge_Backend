@@ -39,57 +39,191 @@ const streamifier = require("streamifier")
 
 const { uploadImage } = require("../utils/cloudinaryUpload");
 
-exports.register = async(req,res) =>{
-    try{
-        const{Fullname,PhoneNo,Email,Password} = req.body;
+exports.register = async (req, res) => {
 
-        const existingUser = await User.findOne({Email});
+    try {
 
-        if(existingUser){
-            return res.status(400).json({
-                success:false,
-                message:"User already exists"
+        const {
+            Fullname,
+            PhoneNo,
+            Email,
+            Password,
+        } = req.body;
+
+
+        // ========================================
+        // CHECK EXISTING USER
+        // ========================================
+
+        const existingUser =
+            await User.findOne({
+                Email,
             });
+
+        if (existingUser) {
+
+            return res.status(400).json({
+                success: false,
+                message: "User already exists",
+            });
+
         }
 
-        const hashedPassword = await bcrypt.hash(Password,10);
 
-        const user = await User.create({
-            Fullname,PhoneNo,Email,Password:hashedPassword,
+        // ========================================
+        // HASH PASSWORD
+        // ========================================
+
+        const hashedPassword =
+            await bcrypt.hash(
+                Password,
+                10
+            );
+
+
+        // ========================================
+        // CREATE USER
+        // ========================================
+
+        const user =
+            await User.create({
+
+                Fullname,
+
+                PhoneNo,
+
+                Email,
+
+                Password:
+                    hashedPassword,
+
+            });
+
+
+        // ========================================
+        // NOTIFICATION PREFERENCES
+        // ========================================
+
+        await NotificationPreference.findOneAndUpdate(
+
+            {
+                user: user._id,
+            },
+
+            {
+                user: user._id,
+            },
+
+            {
+                upsert: true,
+                new: true,
+                setDefaultsOnInsert: true,
+            }
+
+        );
+
+
+        // ========================================
+        // WELCOME NOTIFICATION
+        // ========================================
+
+        try {
+
+            await createNotification({
+
+                title:
+                    "Welcome to SkillBridge",
+
+                message:
+                    `Welcome ${user.Fullname}! Your account has been created successfully.`,
+
+                type:
+                    "WELCOME",
+
+                userId:
+                    user._id,
+
+            });
+
+        } catch (notificationError) {
+
+            console.error(
+                "Welcome Notification Error:",
+                notificationError
+            );
+
+        }
+
+
+        // ========================================
+        // GENERATE JWT
+        // ========================================
+
+        const token =
+            jwt.sign(
+
+                {
+                    id: user._id,
+                },
+
+                process.env.JWT_SECRET,
+
+                {
+                    expiresIn: "7d",
+                }
+
+            );
+
+
+        // ========================================
+        // RESPONSE
+        // ========================================
+
+        return res.status(201).json({
+
+            success: true,
+
+            message:
+                "User registered successfully",
+
+            user: {
+
+                id: user._id,
+
+                Fullname:
+                    user.Fullname,
+
+                Email:
+                    user.Email,
+
+                PhoneNo:
+                    user.PhoneNo,
+
+            },
+
+            token,
+
         });
 
-        await NotificationPreference.findOneAndUpdate({
-            user: user._id,
-        },
-        {
-            user: user._id,
-        },
-        {
-            upsert:true,
-            new: true,
-            setDefaultsOnInsert:true,
+
+    } catch (error) {
+
+        console.error(
+            "Registration Error:",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message,
+
         });
 
-        await createNotification({
-            title: "Welcome to SkillBridge",
-            message: `Welcome ${user.Fullname}! Your account has been created successfully.`,
-            type: "WELCOME",
-            user: user._id,
-        });
+    }
 
-        res.status(201).json({
-            success:true,
-            message:"User registered successfully",
-            user,
-        });
-
-    }catch(error){
-        res.status(500).json({
-            success:false,
-            message:error.message,
-        });
-
-    };
 };
 
 exports.login = async(req,res)=>{

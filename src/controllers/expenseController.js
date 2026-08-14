@@ -143,82 +143,161 @@ exports.getExpense = async (req, res) => {
 };
 
 exports.updateExpense = async (req, res) => {
-  try {
+    try {
 
-    const expense = await Expense.findOneAndUpdate(
-      {
-        _id: req.params.id,
-        user: req.user.id,
-      },
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    await createNotification({
-        title: "Expense Updated",
-        message: `${expense.title} has been updated.`,
-        type: "EXPENSE",
-        user: req.user.id,
-    });
+        const expense = await Expense.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                user: req.user.id,
+            },
+            req.body,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
 
-    if (!expense) {
-      return res.status(404).json({
-        success: false,
-        message: "Expense not found",
-      });
+        if (!expense) {
+            return res.status(404).json({
+                success: false,
+                message: "Expense not found",
+            });
+        }
+
+
+        try {
+
+            await createNotification({
+                title: "Expense Updated",
+                message: `${expense.title} has been updated.`,
+                type: "EXPENSE",
+
+                userId: new mongoose.Types.ObjectId(
+                    req.user.id
+                ),
+
+                referenceId: expense._id,
+                referenceModel: "Expense",
+
+                sendEmail: true,
+            });
+
+        } catch (notificationError) {
+
+            console.error(
+                "Update Notification Error:",
+                notificationError
+            );
+
+        }
+
+
+        return res.status(200).json({
+            success: true,
+            expense,
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Update Expense Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      expense,
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-
-  }
 };
 
 exports.deleteExpense = async (req, res) => {
-  try {
+    try {
 
-    const expense = await Expense.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user.id,
-    });
-    await createNotification({
-        title: "Expense Deleted",
-        message: `${expense.title} has been deleted.`,
-        type: "EXPENSE",
-        user: req.user.id,
-    });
+        console.log("========== DELETE EXPENSE ==========");
+        console.log("Expense ID:", req.params.id);
+        console.log("User ID:", req.user.id);
 
-    if (!expense) {
-      return res.status(404).json({
-        success: false,
-        message: "Expense not found",
-      });
+        const expense = await Expense.findOne({
+            _id: req.params.id,
+            user: req.user.id,
+        });
+
+        if (!expense) {
+            return res.status(404).json({
+                success: false,
+                message: "Expense not found",
+            });
+        }
+
+        // Save values before deleting
+        const expenseId = expense._id;
+        const expenseTitle = expense.title;
+        const expenseAmount = expense.amount;
+
+        // Delete expense
+        await Expense.deleteOne({
+            _id: expenseId,
+        });
+
+        console.log("Expense deleted successfully");
+
+
+        // Create notification
+        try {
+
+            await createNotification({
+                title: "Expense Deleted",
+                message: `₹${expenseAmount} expense "${expenseTitle}" has been deleted.`,
+                type: "EXPENSE",
+
+                userId: new mongoose.Types.ObjectId(
+                    req.user.id
+                ),
+
+                referenceId: expenseId,
+                referenceModel: "Expense",
+
+                sendEmail: true,
+            });
+
+            console.log(
+                "Delete notification created successfully"
+            );
+
+        } catch (notificationError) {
+
+            console.error(
+                "Delete Notification Error:",
+                notificationError
+            );
+
+            /*
+             * Notification failure should NOT
+             * make expense deletion fail.
+             */
+        }
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Expense deleted successfully",
+        });
+
+    } catch (error) {
+
+        console.error(
+            "========== DELETE EXPENSE ERROR =========="
+        );
+
+        console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete expense",
+            error: error.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Expense deleted successfully",
-    });
-
-  } catch (error) {
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-
-  }
 };
 
 exports.getExpenseSummary = async(req,res) =>{

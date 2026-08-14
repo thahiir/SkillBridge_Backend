@@ -5,6 +5,7 @@ const router = express.Router();
 const {
     saveMonthlyBudget,
     getMonthlyBudget,
+    getMonthlySpending,
 } = require("../controllers/budgetController");
 
 const {
@@ -18,12 +19,15 @@ router.get(
     getMonthlyBudget
 );
 
+router.get("/spending",protect,getMonthlySpending);
 
 router.post(
     "/monthly",
     protect,
     saveMonthlyBudget
 );
+
+
 
 
 module.exports = router;
