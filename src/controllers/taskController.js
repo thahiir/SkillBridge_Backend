@@ -18,6 +18,7 @@ exports.createTask = async (req, res) => {
             user: new mongoose.Types.ObjectId(req.user.id),
             referenceId: task._id,
             referenceModel: "Task",
+            sendEmail:false,
         });
 
         res.status(201).json({
@@ -154,6 +155,7 @@ exports.updateTask = async (req, res) => {
             user: new mongoose.Types.ObjectId(req.user.id),
             referenceId: task._id,
             referenceModel: "Task",
+            sendEmail:false,
         });
 
 
