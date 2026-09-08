@@ -325,6 +325,10 @@ exports.updatepassword = async (req, res) => {
             });
         }
 
+        console.log("User ID:", req.user.id);
+        console.log("Current password received:", !!currentpassword);
+        console.log("New password received:", !!newpassword);
+        console.log("Stored password exists:", !!user.Password);
         const isMatch = await bcrypt.compare(
             currentpassword,
             user.Password
