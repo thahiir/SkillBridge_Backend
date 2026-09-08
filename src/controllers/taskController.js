@@ -12,14 +12,14 @@ exports.createTask = async (req, res) => {
             user: req.user.id,
         });
         await createNotification({
+            userId: new mongoose.Types.ObjectId(req.user.id),
             title: "Task Created",
             message: `Task "${task.title}" has been created successfully.`,
             type: "TASK",
-            user: new mongoose.Types.ObjectId(req.user.id),
             referenceId: task._id,
             referenceModel: "Task",
-            sendEmail:false,
-        });
+            sendEmail: false,
+                });
 
         res.status(201).json({
             success:true,
@@ -149,13 +149,13 @@ exports.updateTask = async (req, res) => {
             });
 }
         await createNotification({
+            userId: new mongoose.Types.ObjectId(req.user.id),
             title: "Task Updated",
             message: `"${task.title}" has been updated.`,
             type: "TASK",
-            user: new mongoose.Types.ObjectId(req.user.id),
             referenceId: task._id,
             referenceModel: "Task",
-            sendEmail:false,
+            sendEmail: false,
         });
 
 
@@ -188,10 +188,10 @@ exports.deleteTask = async (req, res) => {
         }
         
         await createNotification({
+            userId: req.user.id,
             title: "Task Deleted",
             message: `"${task.title}" has been deleted.`,
             type: "TASK",
-            user: req.user.id,
         });
 
         
