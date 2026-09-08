@@ -330,7 +330,7 @@ exports.updatepassword = async (req, res) => {
             user.Password
         );
 
-        if (isMatch) {
+        if (!isMatch) {
             return res.status(400).json({
                 success: false,
                 message: "Current password is incorrect",
