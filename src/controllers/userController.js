@@ -364,58 +364,95 @@ exports.updatepassword = async (req, res) => {
 
 
 exports.forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
 
-    const user = await User.findOne({
-      Email: email,
-    });
+    try {
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
+        // Get email from request
+        const { Email } = req.body;
 
-    const resetToken = user.getResetPasswordToken();
+        // Validate email
+        if (!Email || typeof Email !== "string" || !Email.trim()) {
 
-    await user.save({
-      validateBeforeSave: false,
-    });
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
 
-    const resetUrl =
-      `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+        }
 
-    const message = `
-Reset your password using the link below:
+        // Find registered user
+        const user = await User.findOne({
+            Email: Email.trim(),
+        });
+
+        // Use a generic response to avoid exposing accounts
+        if (!user) {
+
+            return res.status(200).json({
+                success: true,
+                message:
+                    "If an account exists with this email, a password reset link will be sent.",
+            });
+
+        }
+
+        // Generate reset token
+        const resetToken = user.getResetPasswordToken();
+
+        // Save reset token
+        await user.save({
+            validateBeforeSave: false,
+        });
+
+        // Generate reset URL
+        const resetUrl =
+            `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+        // Email message
+        const message = `
+Hello,
+
+We received a request to reset your SkillBridge account password.
+
+Click the link below to reset your password:
 
 ${resetUrl}
 
-This link expires in 15 minutes.
+This link will expire in 15 minutes.
+
+If you did not request a password reset, please ignore this email.
+
+Regards,
+SkillBridge Team
 `;
 
-    console.log("Raw Token:", resetToken);
-    console.log("Stored Hash:", user.resetPasswordToken);
-    console.log("Reset URL:", resetUrl);
+        // Send reset email
+        await sendEmail({
+            email: user.Email,
+            subject: "SkillBridge - Password Reset Request",
+            message,
+        });
 
-    await sendEmail({
-      email: user.Email,
-      subject: "Password Reset Request",
-      message,
-    });
+        return res.status(200).json({
+            success: true,
+            message:
+                "If an account exists with this email, a password reset link will be sent.",
+        });
 
-    res.status(200).json({
-      success: true,
-      message: "Password reset email sent",
-    });
+    } catch (error) {
 
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+        console.error(
+            "Forgot Password Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to process password reset request",
+        });
+
+    }
+
 };
 
 exports.resetPassword = async (req, res) => {
